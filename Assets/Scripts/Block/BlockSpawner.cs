@@ -1,10 +1,15 @@
+using NUnit.Framework.Constraints;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 
 public class BlockSpawner : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private void Awake()
+    {
+        spawnPoint = new Vector3(0, -1, maxBlockLength * 0.5f);
+    }
+
     void Start()
     {
         GameObject newBlock = CreateBlock(maxBlockLength);
@@ -49,6 +54,5 @@ public class BlockSpawner : MonoBehaviour
     [SerializeField]
     int minBlockLenght;
 
-    [SerializeField]
-    Vector3 spawnPoint;
+    private Vector3 spawnPoint;
 }
