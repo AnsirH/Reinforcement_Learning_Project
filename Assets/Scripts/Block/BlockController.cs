@@ -11,18 +11,20 @@ public class BlockController : MonoBehaviour
 
     private void MoveBlockForDeltaTime()
     {
-        if (BlockManager.Instance.BlocksTrf.Count == 0) return;
+        if (blockManager.BlocksTrf.Count == 0) return;
 
-        for (int i = 0; i < BlockManager.Instance.BlocksTrf.Count; i++)
+        for (int i = 0; i < blockManager.BlocksTrf.Count; i++)
         {
-            BlockManager.Instance.BlocksTrf[i].Translate(Vector3.back * BlockManager.Instance.BlockMoveSpeed * Time.deltaTime);
+            blockManager.BlocksTrf[i].Translate(Vector3.back * blockManager.BlockMoveSpeed * Time.deltaTime);
 
-            if (BlockManager.Instance.BlocksTrf[i].transform.position.z < -(BlockManager.Instance.BlocksTrf[i].transform.lossyScale.z * 0.5f))
+            if (blockManager.BlocksTrf[i].transform.localPosition.z < -(blockManager.BlocksTrf[i].transform.lossyScale.z * 0.5f))
             {
-                GameObject removedBlock = BlockManager.Instance.BlocksTrf[i].gameObject;
-                BlockManager.Instance.BlocksTrf.Remove(removedBlock.transform);
+                GameObject removedBlock = blockManager.BlocksTrf[i].gameObject;
+                blockManager.BlocksTrf.Remove(removedBlock.transform);
                 Destroy(removedBlock);
             }
         }
     }
+
+    public BlockManager blockManager;
 }

@@ -5,49 +5,67 @@ using UnityEngine;
 
 public class BlockSpawner : MonoBehaviour
 {
-    private void Awake()
+    /// <summary>
+    /// 블록 스폰을 시작합니다.
+    /// </summary>
+    public void StartBlockSpawn()
     {
+        // 초기 스폰 위치 설정
         spawnPoint = new Vector3(0, -1, maxBlockLength * 0.5f);
+
+        CreateBlock(maxBlockLength, spawnPoint);
+
+        GameObject secondBlock = CreateBlock(maxBlockLength, spawnPoint + Vector3.forward * (blockSpawnDistance + maxBlockLength));
+
+        StartCoroutine(SpawnBlockCoroutine(secondBlock.transform));
     }
 
-    void Start()
+    /// <summary>
+    /// 블록 스폰을 중지합니다.
+    /// </summary>
+    public void StopSpawn()
     {
-        GameObject newBlock = CreateBlock(maxBlockLength);
-        newBlock.transform.position = new Vector3(0, -1, maxBlockLength * 0.5f);
-        BlockManager.Instance.BlocksTrf.Add(newBlock.transform);
-
-        StartCoroutine(SpawnBlockCoroutine());
+        StopAllCoroutines();
+        foreach (Transform block in blockManager.BlocksTrf.ToList())
+        {
+            Destroy(block.gameObject);
+        }
+        blockManager.BlocksTrf.Clear();
     }
 
-    private IEnumerator SpawnBlockCoroutine()
+    private IEnumerator SpawnBlockCoroutine(Transform prevBlock)
     {
         int blockLength = Random.Range(minBlockLenght, maxBlockLength);
 
-        GameObject newBlock = CreateBlock(blockLength);
-        newBlock.transform.position = spawnPoint + Vector3.forward * blockLength * 0.5f;
-        BlockManager.Instance.BlocksTrf.Add(newBlock.transform);
+        GameObject newBlock = CreateBlock(blockLength, prevBlock.localPosition + Vector3.forward * (blockSpawnDistance + (prevBlock.localScale.z + blockLength) * 0.5f));
 
-        float spawnDelay = (blockLength + spawnDelayTerm) / BlockManager.Instance.BlockMoveSpeed;
-
+        float spawnDelay = (blockLength + blockSpawnDistance) / blockManager.BlockMoveSpeed;
         yield return new WaitForSeconds(spawnDelay);
 
-        StartCoroutine(SpawnBlockCoroutine());
+        StartCoroutine(SpawnBlockCoroutine(newBlock.transform));
     }
 
-    private GameObject CreateBlock(int blockLength)
+    private GameObject CreateBlock(int blockLength, Vector3 position)
     {        
-        GameObject newBlock = Instantiate(blockPrefab, Vector3.zero, Quaternion.identity);
+        GameObject newBlock = Instantiate(blockPrefab, Vector3.zero, Quaternion.identity, transform);
+
+        newBlock.transform.localPosition = position;
+
         Vector3 blockScale = newBlock.transform.lossyScale;
         blockScale.z = blockLength;
         newBlock.transform.localScale = blockScale;
 
+        blockManager.BlocksTrf.Add(newBlock.transform);
+
         return newBlock;
     }
+
+    public BlockManager blockManager;
 
     public GameObject blockPrefab;
 
     [SerializeField]
-    private float spawnDelayTerm = 1.0f;
+    private float blockSpawnDistance = 7.0f;
 
     [SerializeField]
     int maxBlockLength;

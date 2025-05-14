@@ -3,23 +3,48 @@ using UnityEngine;
 
 public class BlockManager : MonoBehaviour
 {
-    private void Awake()
+    public void Initialize()
     {
-        if (instance != null)
+        blockSpawner = GetComponentInChildren<BlockSpawner>();
+
+        if (blockSpawner == null)
         {
-            if (instance != this)
-                Destroy(this);
+            Debug.LogError("BlockSpawner not found in children.");
+            return;
         }
         else
-            instance = this;
+        {
+            blockSpawner.StopSpawn();
+            blockSpawner.StartBlockSpawn();
+        }
     }
 
-    static BlockManager instance;
-    public static BlockManager Instance => instance;
+    public Transform GetNextBlock(Transform blockTrf)
+    {
+        for (int i = 0; i < blocksTrf.Count; i++)
+        {
+            if (blocksTrf[i] == blockTrf)
+            {
+                if (i + 1 < blocksTrf.Count)
+                {
+                    return blocksTrf[i + 1];
+                }
+                else
+                {
+                    Debug.LogError("No next block found.");
+                    return null;
+                }
+            }
+        }
+        Debug.LogError("Block not found in BlocksTrf.");
+        return null;
+    }
 
     private List<Transform> blocksTrf = new();
-    public List<Transform> BlocksTrf => blocksTrf;
+    public List<Transform> BlocksTrf => blocksTrf;    
 
     [SerializeField] private float blockMoveSpeed = 10.0f;
     public float BlockMoveSpeed => blockMoveSpeed;
+
+    private BlockSpawner blockSpawner;
 }
